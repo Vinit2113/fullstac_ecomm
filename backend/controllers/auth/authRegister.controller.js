@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const dbConn = require("../../db/knex");
 const { generateToken } = require("../../utils/jwt");
+const throwError = require("../../utils/WebError");
 const register = async (req, res) => {
   try {
     // ASK USER FOR FIELD
@@ -42,11 +43,11 @@ const register = async (req, res) => {
       if (existingUser) {
         // IF USER ACTIVE SHOW ALREADY EXISTS
         if (existingUser.status === "active") {
-          throw { status: 409, message: "User already exists " };
+          throwError("User already exists ", 409);
         }
         // ELSE - IF USER BLOCKED SHOW USER BLOCKED
         if (existingUser.status === "blocked") {
-          throw { status: 403, message: "User is blocked" };
+          throwError("User is blocked", 403);
         }
 
         // IF USER IS INACTIVE : User is not deleted from DB, but treated as deleted/disabled.
@@ -80,7 +81,7 @@ const register = async (req, res) => {
       // FETCHING THE ROLE FROM THE ROLES TABLE!
       const role = await trx("roles").where({ name: "customer" }).first();
       if (!role) {
-        throw { status: 500, message: "Default role not found" };
+        throwError("Default role not found", 500);
       }
 
       // NOW ASSIGNING THE ROLE TO THE USER AS DEFAULT !
