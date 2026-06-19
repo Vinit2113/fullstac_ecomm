@@ -1,0 +1,21 @@
+{
+  "name": "shah_digital",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/Vinit2113/fullstac_ecomm#readme",
+  "bugs": {
+    "url": "https://github.com/Vinit2113/fullstac_ecomm/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vinit2113/fullstac_ecomm.git"
+  },
+  "license": "ISC",
+  "author": "Vinit Shah",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
