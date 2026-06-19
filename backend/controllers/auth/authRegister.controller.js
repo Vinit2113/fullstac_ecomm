@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const dbConn = require("../../db/knex");
+const { generateToken } = require("../../utils/jwt");
 const register = async (req, res) => {
   try {
     // ASK USER FOR FIELD
@@ -9,18 +10,101 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "All fields requried" });
     }
 
+    // NORMALIZE USER INPUT
+    const normalizePassword = password.trim();
+    const normalizeEmail = email.trim().toLowerCase();
+    const normalizeName = name.trim();
+    const normalizeUsername = username.trim();
+
     // HASH PASSOWRD
-    const saltRound = process.env.SALTROUND;
-    const hashPassword = await bcrypt.hash(password, saltRound);
+    const saltRound = parseInt(process.env.SALTROUND) || 10;
+    const hashPassword = await bcrypt.hash(normalizePassword, saltRound);
 
     // Either all operations succeed together, or everything is rolled back if something fails.
     // ROLLBACK :Undo all database changes made during a transaction because something went wrong.
-    const result = await dbConn.transaction(async (trx) => {
+    const createdUserId = await dbConn.transaction(async (trx) => {
+      let userId;
       // trx: manages all database queries inside a transaction so they can be committed or rolled back together
-      const customers = trx("it_ecomm.customers")
+
+      // customer: it's an knex query builder object for the it_ecomm.customers which is created using transaction connection trx
+      const customer = trx("it_ecomm.customers");
+
+      // IT CHECK IF USER WITH SAME EMAIL OR USER EXISTS OR NOT !
+      const existingUser = await customer
+        .where((queryBuilder) => {
+          queryBuilder.where({ email: normalizeEmail }).orWhere({
+            username: normalizeUsername,
+          });
+        })
+        .first();
+
+      // IF USERS EXISTS CHECK STATUS IF NO USER FOUND WITH ANY STATUS INSERT NEW
+      if (existingUser) {
+        // IF USER ACTIVE SHOW ALREADY EXISTS
+        if (existingUser.status === "active") {
+          throw { status: 409, message: "User already exists " };
+        }
+        // ELSE - IF USER BLOCKED SHOW USER BLOCKED
+        if (existingUser.status === "blocked") {
+          throw { status: 403, message: "User is blocked" };
+        }
+
+        // IF USER IS INACTIVE : User is not deleted from DB, but treated as deleted/disabled.
+        // RESTORE USER IF INACTIVE
+        // Find the existing user (even if inactive) and update their record, setting their status back to active.
+        const [id] = await customer.where({ id: existingUser.id }).update({
+          name: normalizeName,
+          username: normalizeUsername,
+          email: normalizeEmail,
+          password: hashPassword,
+          status: "active",
+          deleted_at: null,
+          updated_at: trx.fn.now(), // It access the sql function and now() : it's an databae function for current-timestamp
+        });
+        userId = existingUser.id;
+      }
+      // IF NO USER FOUND WITH EXISTING STATUS INSERT NEW
+      else {
+        const [insertId] = await customer.insert({
+          name: normalizeName,
+          username: normalizeUsername,
+          email: normalizeEmail,
+          password: hashPassword,
+          status: "active",
+          created_at: trx.fn.now(),
+          updated_at: trx.fn.now(),
+        });
+        userId = insertId;
+      }
+
+      // FETCHING THE ROLE FROM THE ROLES TABLE!
+      const role = await trx("roles").where({ name: "customer" }).first();
+      if (!role) {
+        throw { status: 500, message: "Default role not found" };
+      }
+
+      // NOW ASSIGNING THE ROLE TO THE USER AS DEFAULT !
+      const alreadyAssigned = await trx("user_role")
+        .where({ user_id: userId, role_id: role.role_id })
+        .first();
+
+      if (!alreadyAssigned) {
+        await trx("user_role").insert({
+          user_id: userId,
+          role_id: role.role_id,
+        });
+      }
+      return userId;
     });
 
-    return res.status(201).json({ message: "Success" });
+    // GENERATE JWT TOKEN
+    const token = generateToken({ id: createdUserId, email: normalizeEmail });
+
+    return res.status(201).json({
+      message: "User registered successfully",
+      createdUserId,
+      token,
+    });
   } catch (error) {
     console.log("REGISTER ERROR", error);
     return res.status(error.status || 500).json({
