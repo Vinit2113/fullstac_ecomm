@@ -1,5 +1,5 @@
 const dbConn = require("../../db/knex");
-const crypto = require("crypto");
+const { hashOTP } = require("../../utils/otp");
 
 const verifyOtp = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Already verified" });
     }
 
-    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+    const otpHash = hashOTP(otp);
     if (otpHash !== user.otp_hash) {
       return res.status(400).json({ message: "Invalid OTP" });
     }

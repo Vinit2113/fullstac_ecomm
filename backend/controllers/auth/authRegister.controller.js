@@ -97,21 +97,25 @@ const register = async (req, res) => {
           role_id: role.role_id,
         });
       }
-      // OTP GENERATION
-      const otp = generateOTP();
-      const otpHash = hashOTP(otp);
-      const otpExpiry = new Date(Date.now() + 10 * 60 * 10000);
 
       await customer.where({ id: userId }).update({
-        otp_hash: otpHash,
-        otp_expires_at: otpExpiry,
-        is_verified: false,
+        is_verified: false, // default unverified
       });
 
-      // SEND MAIL
-      await sendOTPMail(normalizeEmail, otp);
+      // // OTP GENERATION
+      // const otp = generateOTP();
+      // const otpHash = hashOTP(otp);
+      // const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-      
+      // await customer.where({ id: userId }).update({
+      //   otp_hash: otpHash,
+      //   otp_expires_at: otpExpiry,
+      //   is_verified: false,
+      // });
+
+      // // SEND MAIL
+      // await sendOTPMail(normalizeEmail, otp);
+
       return userId;
     });
 
