@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const dbConn = require("../../db/knex");
 const { generateToken } = require("../../utils/jwt");
 const throwError = require("../../utils/WebError");
+const { generateOTP, hashOTP } = require("../../utils/otp");
+const { sendOTPMail } = require("../../utils/mailer");
 const register = async (req, res) => {
   try {
     // ASK USER FOR FIELD
@@ -85,16 +87,31 @@ const register = async (req, res) => {
       }
 
       // NOW ASSIGNING THE ROLE TO THE USER AS DEFAULT !
-      const alreadyAssigned = await trx("user_role")
+      const existsRole = await trx("user_role")
         .where({ user_id: userId, role_id: role.role_id })
         .first();
 
-      if (!alreadyAssigned) {
+      if (!existsRole) {
         await trx("user_role").insert({
           user_id: userId,
           role_id: role.role_id,
         });
       }
+      // OTP GENERATION
+      const otp = generateOTP();
+      const otpHash = hashOTP(otp);
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 10000);
+
+      await customer.where({ id: userId }).update({
+        otp_hash: otpHash,
+        otp_expires_at: otpExpiry,
+        is_verified: false,
+      });
+
+      // SEND MAIL
+      await sendOTPMail(normalizeEmail, otp);
+
+      
       return userId;
     });
 
