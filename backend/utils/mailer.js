@@ -20,4 +20,17 @@ const sendOTPMail = async (email, otp) => {
   });
 };
 
-module.exports = { sendOTPMail };
+const passwordResetMail = async (email, resetLink) => {
+  await transport.sendMail({
+    from: process.env.EMAIL,
+    to: email,
+    subject: "Password Reset Request",
+    html: `
+    <p>You requested password reset</p>
+    <p>Click below link (valid for 15   min):</p>
+    <a href="${resetLink}">${resetLink}</a>
+    `,
+  });
+};
+
+module.exports = { sendOTPMail, passwordResetMail };
