@@ -15,8 +15,32 @@ const authLogin = async (req, res) => {
     const normalizePassword = password.trim();
 
     // CHECK IF USER EXISTS IN DATABASE OR NOT USING EMAIL
-    const existingUser = await dbConn("it_ecomm.customers")
-      .where({ email: normalizeEmail })
+
+    /* 
+            SELECT 
+          c.id,
+          c.name,
+          c.email,
+          c.username,
+          c.password,
+          c.status,
+          c.is_verified,
+          r.name AS role
+        FROM it_ecomm.customers c
+        LEFT JOIN user_role ur 
+          ON c.id = ur.user_id
+        LEFT JOIN roles r 
+          ON ur.role_id = r.role_id
+        LEFT JOIN role r2 
+          ON ur.role_id = r2.role_id
+        WHERE c.email = ?
+        LIMIT 1;
+    */
+    const existingUser = await dbConn("it_ecomm.customers as c")
+      .leftJoin("user_role as ur", "c.id", "ur.user_id")
+      .leftJoin("roles as r", "ur.role_id", "r.role_id")
+      .select("c.id", "c.name", "c.email", "c.username", "c.password", "c.status", "c.is_verified", "r.name as role")
+      .where("c.email", normalizeEmail )
       .first();
 
     if (!existingUser) {
@@ -51,6 +75,7 @@ const authLogin = async (req, res) => {
     const token = generateToken({
       id: existingUser.id,
       email: existingUser.email,
+      role: existingUser.role || "customer"
     });
 
     return res.status(200).json({
@@ -65,8 +90,7 @@ const authLogin = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-
-    throwError("INTERNAL SERVER ERROR", 500);
+    return res.status(500).json({message: "INTERNAL SERVER ERROR"})
   }
 };
 

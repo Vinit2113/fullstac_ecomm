@@ -25,7 +25,7 @@ const register = async (req, res) => {
 
     // Either all operations succeed together, or everything is rolled back if something fails.
     // ROLLBACK :Undo all database changes made during a transaction because something went wrong.
-    const createdUserId = await dbConn.transaction(async (trx) => {
+    const createdUser = await dbConn.transaction(async (trx) => {
       let userId;
       // trx: manages all database queries inside a transaction so they can be committed or rolled back together
 
@@ -33,6 +33,7 @@ const register = async (req, res) => {
       const customer = trx("it_ecomm.customers");
 
       // IT CHECK IF USER WITH SAME EMAIL OR USER EXISTS OR NOT !
+
       const existingUser = await customer
         .where((queryBuilder) => {
           queryBuilder.where({ email: normalizeEmail }).orWhere({
@@ -116,15 +117,16 @@ const register = async (req, res) => {
       // // SEND MAIL
       // await sendOTPMail(normalizeEmail, otp);
 
-      return userId;
+      return {userId, roleName: role.name};
     });
 
     // GENERATE JWT TOKEN
-    const token = generateToken({ id: createdUserId, email: normalizeEmail });
+    const token = generateToken({ id: createdUser.userId, email: normalizeEmail, role: createdUser.roleName });
+    
 
     return res.status(201).json({
       message: "User registered successfully",
-      createdUserId,
+      id: createdUser.userId,
       token,
     });
   } catch (error) {
