@@ -39,8 +39,17 @@ const authLogin = async (req, res) => {
     const existingUser = await dbConn("it_ecomm.customers as c")
       .leftJoin("user_role as ur", "c.id", "ur.user_id")
       .leftJoin("roles as r", "ur.role_id", "r.role_id")
-      .select("c.id", "c.name", "c.email", "c.username", "c.password", "c.status", "c.is_verified", "r.name as role")
-      .where("c.email", normalizeEmail )
+      .select(
+        "c.id",
+        "c.name",
+        "c.email",
+        "c.username",
+        "c.password",
+        "c.status",
+        "c.is_verified",
+        "r.name as role",
+      )
+      .where("c.email", normalizeEmail)
       .first();
 
     if (!existingUser) {
@@ -71,14 +80,13 @@ const authLogin = async (req, res) => {
     //   throwError("Please verify your email first", 403);
     // }
 
-    console.log("Here is list of existing user: ",existingUser.role);
-    
+    console.log("Here is list of existing user: ", existingUser.role);
 
     // GENERATE JWT TOKEN
     const token = generateToken({
       id: existingUser.id,
       email: existingUser.email,
-      role: existingUser.role
+      role: existingUser.role,
     });
 
     return res.status(200).json({
@@ -93,11 +101,12 @@ const authLogin = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({message: "INTERNAL SERVER ERROR"})
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "INTERNAL SERVER ERROR",
+    });
   }
 };
 
 module.exports = authLogin;
 
-
-// PASSWORD FORGOT AND RESET ... AND OTHER TOMMORROW ! 
+// PASSWORD FORGOT AND RESET ... AND OTHER TOMMORROW !

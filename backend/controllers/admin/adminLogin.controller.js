@@ -36,10 +36,7 @@ const loginAdmin = async (req, res) => {
     }
 
     // Check Password
-    const isMatch = await bcrypt.compare(
-      normalizePassword,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(normalizePassword, user.password);
 
     if (!isMatch) {
       throwError("Invalid credentials", 401);
@@ -55,7 +52,6 @@ const loginAdmin = async (req, res) => {
     const roleName = role?.name || "customer";
 
     // console.log("Here is rolename for token :",roleName);
-    
 
     // Generate JWT
     const token = generateToken({
@@ -77,7 +73,7 @@ const loginAdmin = async (req, res) => {
   } catch (error) {
     console.error("LOGIN ERROR:", error);
 
-    return res.status(error.status || 500).json({
+    return res.status(error.statusCode || 500).json({
       message: error.message || "INTERNAL SERVER ERROR",
     });
   }
