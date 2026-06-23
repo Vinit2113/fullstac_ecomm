@@ -71,11 +71,14 @@ const authLogin = async (req, res) => {
     //   throwError("Please verify your email first", 403);
     // }
 
+    console.log("Here is list of existing user: ",existingUser.role);
+    
+
     // GENERATE JWT TOKEN
     const token = generateToken({
       id: existingUser.id,
       email: existingUser.email,
-      role: existingUser.role || "customer"
+      role: existingUser.role
     });
 
     return res.status(200).json({

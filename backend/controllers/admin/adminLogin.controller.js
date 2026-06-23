@@ -54,6 +54,9 @@ const loginAdmin = async (req, res) => {
 
     const roleName = role?.name || "customer";
 
+    // console.log("Here is rolename for token :",roleName);
+    
+
     // Generate JWT
     const token = generateToken({
       id: user.id,
