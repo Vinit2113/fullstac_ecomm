@@ -32,6 +32,6 @@ router.get("/profile", verifyToken, userProfile);
 router.post("/update", verifyToken, updateUser);
 
 // DELETE USER
-router.delete("/delete", verifyToken, deleteAuth);
+router.post("/delete", verifyToken, deleteAuth);
 
 module.exports = router;

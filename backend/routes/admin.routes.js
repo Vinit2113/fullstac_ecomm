@@ -6,6 +6,9 @@ const {
 } = require("../controllers/admin/listAllUser.controller");
 const verifyToken = require("../utils/verifyToken");
 const userBlock = require("../controllers/admin/blockUser.controller");
+const {
+  deleteUser,
+} = require("../controllers/admin/deleteUserByAdmin.controller");
 const router = express.Router();
 
 // AUTH
@@ -17,5 +20,8 @@ router.get("/admin-list-users", verifyToken, listAllProfile);
 
 // BLOCK USER
 router.post("/:userid/block", verifyToken, userBlock);
+
+// DELETE SPECIFIC USER
+router.post("/:id/user-delete", verifyToken, deleteUser);
 
 module.exports = router;
