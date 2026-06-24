@@ -50,6 +50,7 @@ const authLogin = async (req, res) => {
         "r.name as role",
       )
       .where("c.email", normalizeEmail)
+      .whereNull("c.deleted_at")
       .first();
 
     if (!existingUser) {
@@ -79,8 +80,6 @@ const authLogin = async (req, res) => {
     // if (!user.is_verified) {
     //   throwError("Please verify your email first", 403);
     // }
-
-    console.log("Here is list of existing user: ", existingUser.role);
 
     // GENERATE JWT TOKEN
     const token = generateToken({

@@ -9,6 +9,7 @@ const resetPassword = require("../controllers/auth/resetPassword.controller");
 const verifyToken = require("../utils/verifyToken");
 const { userProfile } = require("../controllers/auth/getProfile.controller");
 const updateUser = require("../controllers/auth/updateAuth.controller");
+const deleteAuth = require("../controllers/auth/deleteAuth.controller");
 const router = express.Router();
 
 // AUTH
@@ -25,9 +26,12 @@ router.post("/verify-otp", verifyOtp);
 router.post("/resend-otp", resendOtp);
 
 // USER PROFILE
-router.get("/profile", verifyToken, userProfile)
+router.get("/profile", verifyToken, userProfile);
 
 // UPDATE USER PROFILE
-router.post("/update", verifyToken, updateUser)
+router.post("/update", verifyToken, updateUser);
+
+// DELETE USER
+router.delete("/delete", verifyToken, deleteAuth);
 
 module.exports = router;

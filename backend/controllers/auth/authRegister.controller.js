@@ -20,7 +20,7 @@ const register = async (req, res) => {
     const normalizeUsername = username.trim();
 
     // HASH PASSOWRD
-    const saltRound = parseInt(process.env.SALTROUND) || 10;
+    const saltRound = Number(process.env.SALTROUND) || 10;
     const hashPassword = await bcrypt.hash(normalizePassword, saltRound);
 
     // Either all operations succeed together, or everything is rolled back if something fails.
@@ -45,18 +45,19 @@ const register = async (req, res) => {
       // IF USERS EXISTS CHECK STATUS IF NO USER FOUND WITH ANY STATUS INSERT NEW
       if (existingUser) {
         // IF USER ACTIVE SHOW ALREADY EXISTS
-        if (existingUser.status === "active") {
-          throwError("User already exists ", 409);
+        if (existingUser.status === "active" && !existingUser.deleted_at) {
+          return throwError("User already exists ", 409);
         }
+
         // ELSE - IF USER BLOCKED SHOW USER BLOCKED
         if (existingUser.status === "blocked") {
-          throwError("User is blocked", 403);
+          return throwError("User is blocked", 403);
         }
 
         // IF USER IS INACTIVE : User is not deleted from DB, but treated as deleted/disabled.
         // RESTORE USER IF INACTIVE
         // Find the existing user (even if inactive) and update their record, setting their status back to active.
-        const [id] = await customer.where({ id: existingUser.id }).update({
+        await customer.where({ id: existingUser.id }).update({
           name: normalizeName,
           username: normalizeUsername,
           email: normalizeEmail,
@@ -67,6 +68,11 @@ const register = async (req, res) => {
         });
         userId = existingUser.id;
       }
+
+      // IF USER EXISTS AND SOFT-DELETED
+      if (existingUser.deleted_at) {
+      }
+
       // IF NO USER FOUND WITH EXISTING STATUS INSERT NEW
       else {
         const [insertId] = await customer.insert({
@@ -84,7 +90,7 @@ const register = async (req, res) => {
       // FETCHING THE ROLE FROM THE ROLES TABLE!
       const role = await trx("roles").where({ name: "customer" }).first();
       if (!role) {
-        throwError("Default role not found", 500);
+        return throwError("Default role not found", 500);
       }
 
       // NOW ASSIGNING THE ROLE TO THE USER AS DEFAULT !
@@ -117,12 +123,15 @@ const register = async (req, res) => {
       // // SEND MAIL
       // await sendOTPMail(normalizeEmail, otp);
 
-      return {userId, roleName: role.name};
+      return { userId, roleName: role.name };
     });
 
     // GENERATE JWT TOKEN
-    const token = generateToken({ id: createdUser.userId, email: normalizeEmail, role: createdUser.roleName });
-    
+    const token = generateToken({
+      id: createdUser.userId,
+      email: normalizeEmail,
+      role: createdUser.roleName,
+    });
 
     return res.status(201).json({
       message: "User registered successfully",
