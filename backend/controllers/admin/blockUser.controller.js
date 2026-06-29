@@ -19,7 +19,7 @@ const userBlock = async (req, res) => {
       .where({ id: userid })
       .whereNull("deleted_at")
       .first();
-
+ 
     if (!getUser) {
       return throwError("User not found", 404);
     }

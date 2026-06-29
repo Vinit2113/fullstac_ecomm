@@ -19,8 +19,6 @@ const verifyToken = async (req, res, next) => {
 
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      console.log("Decoded:", decoded);
     } catch (err) {
       if (err.name === "TokenExpiredError") {
         return res.status(401).json({
@@ -69,8 +67,6 @@ const verifyToken = async (req, res, next) => {
       is_verified: user.is_verified,
       deleted_at: user.deleted_at,
     };
-
-    console.log("req.user:", req.user);
 
     next();
   } catch (error) {
