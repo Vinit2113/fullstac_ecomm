@@ -26,8 +26,8 @@ const createCategory = async (req, res) => {
     // 3. INSERT CATEGORY
     const [newCategory] = await dbConn("it_ecomm.categories")
       .insert({
-          cat_name: normalizedName, // for logic/search
-          cat_display_name: trimmedName, // for display
+        cat_name: normalizedName, // for logic/search
+        cat_display_name: trimmedName, // for display
         cat_description: cat_description?.trim() || null,
         cat_is_active: true,
         created_at: new Date(),
