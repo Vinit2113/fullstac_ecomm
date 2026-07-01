@@ -9,11 +9,21 @@ const deleteCatById = require("../controllers/categories/deleteCatById.controlle
 const restoreCatById = require("../controllers/categories/restoreCatById.controller");
 const router = express.Router();
 
+// CREATE
 router.post("/cat-insert", verifyToken, onlyAdmins, createCategory);
+
+// LISTS
 router.post("/cat-list", listCategories);
 router.post("/cat-list-id/:cat_id", cat_by_id);
+
+// UPDATE
 router.post("/cat-update-id/:cat_id", verifyToken, onlyAdmins, updateCatById);
+
+// DELETE
 router.post("/cat-delete-id/:cat_id", verifyToken, onlyAdmins, deleteCatById);
+
+// RESTORE
 router.post("/cat-restore-id/:cat_id", verifyToken, onlyAdmins, restoreCatById);
+
 
 module.exports = router;
