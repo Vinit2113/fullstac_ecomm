@@ -21,13 +21,13 @@
   ],
 
   "cat-attributes": [
-    { "attribute_id": 1, "attribute_name": "Processor" },
-    { "attribute_id": 2, "attribute_name": "RAM" },
-    { "attribute_id": 3, "attribute_name": "Storage Type" },
-    { "attribute_id": 4, "attribute_name": "Storage Capacity" },
-    { "attribute_id": 5, "attribute_name": "Graphics" },
-    { "attribute_id": 6, "attribute_name": "Print Speed" },
-    { "attribute_id": 7, "attribute_name": "Resolution" }
+    { "attribute_id": 1, "attribute_name": "Processor", "is_active": 1 },
+    { "attribute_id": 2, "attribute_name": "RAM" , "is_active": 1},
+    { "attribute_id": 3, "attribute_name": "Storage Type", "is_active": 1 },
+    { "attribute_id": 4, "attribute_name": "Storage Capacity", "is_active": 1 },
+    { "attribute_id": 5, "attribute_name": "Graphics" , "is_active": 1},
+    { "attribute_id": 6, "attribute_name": "Print Speed", "is_active": 1 },
+    { "attribute_id": 7, "attribute_name": "Resolution", "is_active": 1 }
   ],
 
   "category_attribute": [
@@ -59,7 +59,6 @@
       "short_description": "i5 12th Gen Laptop",
       "full_description": "Dell Inspiron 15, i5 12th Gen, 8GB RAM, 512GB SSD",
       "current_price": 55000,
-      "original_price": 65000,
       "discounted_price": 55000,
       "stock_quantity": 25,
       "is_active": 1
@@ -72,7 +71,6 @@
       "short_description": "Ryzen 5 Laptop",
       "full_description": "Lenovo IdeaPad Slim 3, Ryzen 5, 8GB RAM, 512GB SSD",
       "current_price": 48000,
-      "original_price": 58000,
       "discounted_price": 48000,
       "stock_quantity": 30,
       "is_active": 1
@@ -85,7 +83,6 @@
       "short_description": "NVMe SSD",
       "full_description": "Samsung 1TB NVMe SSD ultra fast performance",
       "current_price": 12000,
-      "original_price": 15000,
       "discounted_price": 12000,
       "stock_quantity": 40,
       "is_active": 1
@@ -98,7 +95,6 @@
       "short_description": "Storage Drive",
       "full_description": "Seagate 1TB HDD 7200RPM",
       "current_price": 3500,
-      "original_price": 4500,
       "discounted_price": 3500,
       "stock_quantity": 60,
       "is_active": 1
@@ -111,7 +107,6 @@
       "short_description": "Gaming GPU",
       "full_description": "RTX 4060 8GB GDDR6 high performance GPU",
       "current_price": 32000,
-      "original_price": 38000,
       "discounted_price": 32000,
       "stock_quantity": 15,
       "is_active": 1
@@ -124,7 +119,6 @@
       "short_description": "DDR4 RAM",
       "full_description": "Corsair 16GB DDR4 3200MHz RAM",
       "current_price": 4500,
-      "original_price": 6000,
       "discounted_price": 4500,
       "stock_quantity": 50,
       "is_active": 1
