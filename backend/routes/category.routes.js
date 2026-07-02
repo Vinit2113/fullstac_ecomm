@@ -25,5 +25,4 @@ router.post("/cat-delete-id/:cat_id", verifyToken, onlyAdmins, deleteCatById);
 // RESTORE
 router.post("/cat-restore-id/:cat_id", verifyToken, onlyAdmins, restoreCatById);
 
-
 module.exports = router;
